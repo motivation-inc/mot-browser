@@ -7,5 +7,5 @@ name = "mot-browser"
 version = "0.1.0"
 
 [[package]]
-name = "web-speak"
+name = "web-forge"
 version = "0.1.0"

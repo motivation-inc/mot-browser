@@ -1,11 +1,11 @@
 [workspace]
 resolver = "3"
-members = ["crates/mot-browser","crates/web-speak"]
+members = ["crates/mot-browser","crates/web-forge"]
 
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
 repository = "https://github.com/motivation-inc/mot-browser.git"
-description = "A new kind of web browser"
+description = "A full-fledged web browser designed around the WebForge programming language"
 authors = ["Motivation Software Inc."]
 license = "GPL-3.0"
