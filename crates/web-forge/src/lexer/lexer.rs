@@ -201,7 +201,7 @@ impl Lexer {
                 unknown_char => {
                     return Err(Error::new(
                         format!("unknown character '{unknown_char}'").as_str(),
-                        None,
+                        &self.contents,
                         Span::new(pos_start, self.cursor.clone()),
                     ));
                 }
@@ -233,7 +233,7 @@ impl Lexer {
                 if dot_count == 1 {
                     return Err(Error::new(
                         "invalid numerical value",
-                        None,
+                        &self.contents,
                         Span::new(pos_start, self.cursor.clone()),
                     ));
                 }
@@ -243,7 +243,7 @@ impl Lexer {
             } else if LETTERS.contains(character) {
                 return Err(Error::new(
                     "identifiers cannot start with numerical values",
-                    None,
+                    &self.contents,
                     Span::new(pos_start, self.cursor.clone()),
                 ));
             } else {
@@ -330,7 +330,7 @@ impl Lexer {
                     } else {
                         return Err(Error::new(
                             "invalid ANSI escape sequence (expected '[')",
-                            None,
+                            &self.contents,
                             Span::new(pos_start, self.cursor.clone()),
                         ));
                     }
@@ -340,7 +340,7 @@ impl Lexer {
                 } else {
                     return Err(Error::new(
                         "invalid escape character",
-                        None,
+                        &self.contents,
                         Span::new(pos_start, self.cursor.clone()),
                     ));
                 }
@@ -362,7 +362,7 @@ impl Lexer {
         if self.current_char != Some('"') {
             return Err(Error::new(
                 "unfinished string",
-                Some("add a '\"' at the end of the string to close it"),
+                &self.contents,
                 Span::new(pos_start, self.cursor.clone()),
             ));
         }
@@ -494,7 +494,7 @@ impl Lexer {
 
         Err(Error::new(
             "expected '=' after '!'",
-            Some("add a '=' after the '!' character"),
+            &self.contents,
             Span::new(pos_start, pos_end),
         ))
     }
