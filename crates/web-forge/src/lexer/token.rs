@@ -1,7 +1,7 @@
 use crate::lexer::span::Span;
 
 /// Describes the type encompassed by the token.
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TokenType {
     /// An integer token (`0`)
     Int,
@@ -61,11 +61,16 @@ pub enum TokenType {
     Colon,
     /// A semi-colon token (`;`)
     SemiColon,
+    /// An and token (`&&`)
+    And,
+    /// An or token (`||`)
+    Or,
     /// An end of file (EOF) token
     End,
 }
 
 /// A WebSpeak token object.
+#[derive(Debug, Clone)]
 pub struct Token {
     token_type: TokenType,
     value: String,

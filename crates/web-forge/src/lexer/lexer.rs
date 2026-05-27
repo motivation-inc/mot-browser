@@ -81,7 +81,7 @@ impl Lexer {
         let mut tokens = Vec::new();
 
         while let Some(current_char) = self.current_char {
-            let pos_start = self.cursor.clone();
+            let pos_start = self.cursor;
 
             let token = match current_char {
                 ' ' | '\t' | '\n' => {
@@ -95,7 +95,7 @@ impl Lexer {
                     Some(Token::new(
                         TokenType::SemiColon,
                         None,
-                        Span::new(pos_start, self.cursor.clone()),
+                        Span::new(pos_start, self.cursor),
                     ))
                 }
                 c if DIGITS.contains(c) => Some(self.make_number()?),
@@ -107,7 +107,7 @@ impl Lexer {
                     Some(Token::new(
                         TokenType::Plus,
                         None,
-                        Span::new(pos_start, self.cursor.clone()),
+                        Span::new(pos_start, self.cursor),
                     ))
                 }
                 '-' => Some(self.make_minus_or_arrow()),
@@ -119,7 +119,7 @@ impl Lexer {
                     Some(Token::new(
                         TokenType::Mod,
                         None,
-                        Span::new(pos_start, self.cursor.clone()),
+                        Span::new(pos_start, self.cursor),
                     ))
                 }
                 '(' => {
@@ -128,7 +128,7 @@ impl Lexer {
                     Some(Token::new(
                         TokenType::LParen,
                         None,
-                        Span::new(pos_start, self.cursor.clone()),
+                        Span::new(pos_start, self.cursor),
                     ))
                 }
                 ')' => {
@@ -137,7 +137,7 @@ impl Lexer {
                     Some(Token::new(
                         TokenType::RParen,
                         None,
-                        Span::new(pos_start, self.cursor.clone()),
+                        Span::new(pos_start, self.cursor),
                     ))
                 }
                 '[' => {
@@ -146,7 +146,7 @@ impl Lexer {
                     Some(Token::new(
                         TokenType::LSquare,
                         None,
-                        Span::new(pos_start, self.cursor.clone()),
+                        Span::new(pos_start, self.cursor),
                     ))
                 }
                 ']' => {
@@ -155,7 +155,7 @@ impl Lexer {
                     Some(Token::new(
                         TokenType::RSquare,
                         None,
-                        Span::new(pos_start, self.cursor.clone()),
+                        Span::new(pos_start, self.cursor),
                     ))
                 }
                 '{' => {
@@ -164,7 +164,7 @@ impl Lexer {
                     Some(Token::new(
                         TokenType::LBracket,
                         None,
-                        Span::new(pos_start, self.cursor.clone()),
+                        Span::new(pos_start, self.cursor),
                     ))
                 }
                 '}' => {
@@ -172,7 +172,7 @@ impl Lexer {
                     Some(Token::new(
                         TokenType::RBracket,
                         None,
-                        Span::new(pos_start, self.cursor.clone()),
+                        Span::new(pos_start, self.cursor),
                     ))
                 }
                 '!' => Some(self.make_not_equals()?),
@@ -185,7 +185,7 @@ impl Lexer {
                     Some(Token::new(
                         TokenType::Comma,
                         None,
-                        Span::new(pos_start, self.cursor.clone()),
+                        Span::new(pos_start, self.cursor),
                     ))
                 }
                 '.' => {
@@ -194,7 +194,45 @@ impl Lexer {
                     Some(Token::new(
                         TokenType::Period,
                         None,
-                        Span::new(pos_start, self.cursor.clone()),
+                        Span::new(pos_start, self.cursor),
+                    ))
+                }
+                '&' => {
+                    self.advance();
+
+                    if let Some(current_char) = self.current_char {
+                        if current_char != '&' {
+                            return Err(Error::new(
+                                "expected '&' after '&'",
+                                &self.contents,
+                                Span::new(pos_start, self.cursor),
+                            ));
+                        }
+                    }
+
+                    Some(Token::new(
+                        TokenType::And,
+                        None,
+                        Span::new(pos_start, self.cursor),
+                    ))
+                }
+                '|' => {
+                    self.advance();
+
+                    if let Some(current_char) = self.current_char {
+                        if current_char != '|' {
+                            return Err(Error::new(
+                                "expected '|' after '|'",
+                                &self.contents,
+                                Span::new(pos_start, self.cursor),
+                            ));
+                        }
+                    }
+
+                    Some(Token::new(
+                        TokenType::Or,
+                        None,
+                        Span::new(pos_start, self.cursor),
                     ))
                 }
 
@@ -202,7 +240,7 @@ impl Lexer {
                     return Err(Error::new(
                         format!("unknown character '{unknown_char}'").as_str(),
                         &self.contents,
-                        Span::new(pos_start, self.cursor.clone()),
+                        Span::new(pos_start, self.cursor),
                     ));
                 }
             };
@@ -215,7 +253,7 @@ impl Lexer {
         tokens.push(Token::new(
             TokenType::End,
             None,
-            Span::new(self.cursor.clone(), self.cursor.clone()),
+            Span::new(self.cursor, self.cursor),
         ));
 
         Ok(tokens)
@@ -224,7 +262,7 @@ impl Lexer {
     fn make_number(&mut self) -> Result<Token, Error> {
         let mut num_str = String::new();
         let mut dot_count = 0;
-        let pos_start = self.cursor.clone();
+        let pos_start = self.cursor;
 
         while let Some(character) = self.current_char {
             if character.is_ascii_digit() {
@@ -234,7 +272,7 @@ impl Lexer {
                     return Err(Error::new(
                         "invalid numerical value",
                         &self.contents,
-                        Span::new(pos_start, self.cursor.clone()),
+                        Span::new(pos_start, self.cursor),
                     ));
                 }
 
@@ -244,7 +282,7 @@ impl Lexer {
                 return Err(Error::new(
                     "identifiers cannot start with numerical values",
                     &self.contents,
-                    Span::new(pos_start, self.cursor.clone()),
+                    Span::new(pos_start, self.cursor),
                 ));
             } else {
                 break;
@@ -253,7 +291,7 @@ impl Lexer {
             self.advance();
         }
 
-        let pos_end = self.cursor.clone();
+        let pos_end = self.cursor;
 
         Ok(Token::new(
             if dot_count > 0 {
@@ -268,7 +306,7 @@ impl Lexer {
 
     fn make_identifier(&mut self) -> Token {
         let mut id_string = String::new();
-        let pos_start = self.cursor.clone();
+        let pos_start = self.cursor;
 
         while let Some(character) = self.current_char {
             if LETTERS_DIGITS.contains(character) {
@@ -280,7 +318,7 @@ impl Lexer {
             }
         }
 
-        let pos_end = self.cursor.clone();
+        let pos_end = self.cursor;
 
         let token_type = if KEYWORDS.contains(&id_string.as_str()) {
             TokenType::Keyword
@@ -293,7 +331,7 @@ impl Lexer {
 
     fn make_string(&mut self) -> Result<Token, Error> {
         let mut string = String::new();
-        let pos_start = self.cursor.clone();
+        let pos_start = self.cursor;
         let mut escape_char = false;
 
         self.advance();
@@ -331,7 +369,7 @@ impl Lexer {
                         return Err(Error::new(
                             "invalid ANSI escape sequence (expected '[')",
                             &self.contents,
-                            Span::new(pos_start, self.cursor.clone()),
+                            Span::new(pos_start, self.cursor),
                         ));
                     }
                 } else if let Some(replacement) = escape_chars.get(&character) {
@@ -341,7 +379,7 @@ impl Lexer {
                     return Err(Error::new(
                         "invalid escape character",
                         &self.contents,
-                        Span::new(pos_start, self.cursor.clone()),
+                        Span::new(pos_start, self.cursor),
                     ));
                 }
 
@@ -361,9 +399,9 @@ impl Lexer {
 
         if self.current_char != Some('"') {
             return Err(Error::new(
-                "unfinished string",
+                "unterminated string",
                 &self.contents,
-                Span::new(pos_start, self.cursor.clone()),
+                Span::new(pos_start, self.cursor),
             ));
         }
 
@@ -372,13 +410,13 @@ impl Lexer {
         Ok(Token::new(
             TokenType::Str,
             Some(string),
-            Span::new(pos_start, self.cursor.clone()),
+            Span::new(pos_start, self.cursor),
         ))
     }
 
     fn make_minus_or_arrow(&mut self) -> Token {
         let mut token_type = TokenType::Minus;
-        let pos_start = self.cursor.clone();
+        let pos_start = self.cursor;
 
         self.advance();
 
@@ -389,12 +427,12 @@ impl Lexer {
             token_type = TokenType::Arrow;
         }
 
-        Token::new(token_type, None, Span::new(pos_start, self.cursor.clone()))
+        Token::new(token_type, None, Span::new(pos_start, self.cursor))
     }
 
     fn make_mul_or_pow(&mut self) -> Token {
         let mut token_type = TokenType::Mul;
-        let pos_start = self.cursor.clone();
+        let pos_start = self.cursor;
 
         self.advance();
 
@@ -405,11 +443,11 @@ impl Lexer {
             token_type = TokenType::Pow;
         }
 
-        Token::new(token_type, None, Span::new(pos_start, self.cursor.clone()))
+        Token::new(token_type, None, Span::new(pos_start, self.cursor))
     }
 
     fn make_div_or_comment(&mut self) -> Option<Token> {
-        let pos_start = self.cursor.clone();
+        let pos_start = self.cursor;
 
         self.advance();
 
@@ -448,14 +486,14 @@ impl Lexer {
             _ => Some(Token::new(
                 TokenType::Div,
                 None,
-                Span::new(pos_start, self.cursor.clone()),
+                Span::new(pos_start, self.cursor),
             )),
         }
     }
 
     fn make_equals(&mut self) -> Token {
         let mut token_type = TokenType::Eq;
-        let pos_start = self.cursor.clone();
+        let pos_start = self.cursor;
         self.advance();
 
         if let Some(character) = self.current_char
@@ -465,13 +503,13 @@ impl Lexer {
             token_type = TokenType::EqEq;
         }
 
-        let pos_end = self.cursor.clone();
+        let pos_end = self.cursor;
 
         Token::new(token_type, None, Span::new(pos_start, pos_end))
     }
 
     fn make_not_equals(&mut self) -> Result<Token, Error> {
-        let pos_start = self.cursor.clone();
+        let pos_start = self.cursor;
         self.advance();
 
         if let Some(character) = self.current_char
@@ -479,7 +517,7 @@ impl Lexer {
         {
             self.advance();
 
-            let pos_end = self.cursor.clone();
+            let pos_end = self.cursor;
 
             return Ok(Token::new(
                 TokenType::Ne,
@@ -490,7 +528,7 @@ impl Lexer {
 
         self.advance();
 
-        let pos_end = self.cursor.clone();
+        let pos_end = self.cursor;
 
         Err(Error::new(
             "expected '=' after '!'",
@@ -501,7 +539,7 @@ impl Lexer {
 
     fn make_less_than(&mut self) -> Token {
         let mut token_type = TokenType::LT;
-        let pos_start = self.cursor.clone();
+        let pos_start = self.cursor;
         self.advance();
 
         if let Some(character) = self.current_char
@@ -511,14 +549,14 @@ impl Lexer {
             token_type = TokenType::LTE;
         }
 
-        let pos_end = self.cursor.clone();
+        let pos_end = self.cursor;
 
         Token::new(token_type, None, Span::new(pos_start, pos_end))
     }
 
     fn make_greater_than(&mut self) -> Token {
         let mut token_type = TokenType::GT;
-        let pos_start = self.cursor.clone();
+        let pos_start = self.cursor;
         self.advance();
 
         if let Some(character) = self.current_char
@@ -528,7 +566,7 @@ impl Lexer {
             token_type = TokenType::GTE;
         }
 
-        let pos_end = self.cursor.clone();
+        let pos_end = self.cursor;
 
         Token::new(token_type, None, Span::new(pos_start, pos_end))
     }

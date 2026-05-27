@@ -1,6 +1,7 @@
 use crate::lexer::position::Position;
 
 /// A span object.
+#[derive(Debug, Clone, Copy)]
 pub struct Span {
     start: Position,
     end: Position,
